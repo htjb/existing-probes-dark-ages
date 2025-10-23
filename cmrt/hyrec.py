@@ -1,14 +1,14 @@
 import numpy as np
 import os
 
-def set_up_hyrec(H0=100, ombh2=0.022, omch2=0.122, omk=0, yhe=0.24,
+def set_up_hyrec(H0, omb, omc, omk, yhe,
                  base_dir='./'):
     """
     Code to set up hyrec. Code builds the input.dat file from a template
     given the cosmological parameters input to this class.
     """
     
-    labels = ['h', 'T0CMB', 'Omega_b', 'Omega_cdm',
+    labels = ['h', 'T0CMB', 'Omega_b', 'Omega_m',
                 'Omega_k', 'w0, wa', 'Nmnu', 'mnu1', 'mnu2', 'mnu3',
                 'Y_He', 'Neff', ' ', 'alpha(rec)/alpha(today)', 
                 'me(rec)/me(today)',
@@ -26,10 +26,10 @@ def set_up_hyrec(H0=100, ombh2=0.022, omch2=0.122, omk=0, yhe=0.24,
                     data[labels[i]] = line.rstrip()
 
     data['h'] = str(H0/100)
-    data['Omega_b'] = str(ombh2/(H0/100)**2)
-    data['Omega_cdm'] = str(omch2/(H0/100)**2)
+    data['Omega_b'] = str(omb*(H0/100)**2)
+    data['Omega_m'] = str((omc+omb)*(H0/100)**2)
     data['Omega_k'] = str(omk)
-    data['Y_HE'] = str(yhe)
+    data['Y_He'] = str(yhe)
 
     with open(base_dir + 'hyrec_input.dat', 'w') as file:
         for key, value in data.items():
