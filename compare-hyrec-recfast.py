@@ -2,10 +2,10 @@ from jax import numpy as jnp
 import jax
 from anesthetic import read_chains
 import matplotlib.pyplot as plt
-from cmrt.cosmology import cosmology
-from cmrt.signal import xc, Tcmb, Ts, T21
-from cmrt.hyrec import set_up_hyrec, call_hyrec
-from cmrt.recfast import update_recfast_ini, call_recfast
+from darkages.cosmology import cosmology
+from darkages.signal import xc, Tcmb, Ts, T21
+from darkages.hyrec import set_up_hyrec, call_hyrec
+from darkages.recfast import update_recfast_ini, call_recfast
 
 
 def generate_signal(z_grid, sample, model='recfast'):

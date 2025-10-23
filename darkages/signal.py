@@ -1,6 +1,6 @@
 import jax.numpy as jnp
 import jax
-from cmrt.utils import const
+from darkages.utils import const
 
 def n_H_tot(z, cosmo):
     # mean hydrogen number density in m^-3

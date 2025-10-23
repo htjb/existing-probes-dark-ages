@@ -2,10 +2,10 @@ import matplotlib.pyplot as plt
 from jax import numpy as jnp
 import numpy as np
 import jax
-from cmrt.cosmology import cosmology
-from cmrt.signal import xc, Tcmb, Ts, T21
-from cmrt.hyrec import set_up_hyrec, call_hyrec
-from cmrt.recfast import update_recfast_ini, call_recfast
+from darkages.cosmology import cosmology
+from darkages.signal import xc, Tcmb, Ts, T21
+from darkages.hyrec import set_up_hyrec, call_hyrec
+from darkages.recfast import update_recfast_ini, call_recfast
 from anesthetic import read_chains
 
 def prior_sample(n_samples=1000):
