@@ -2,7 +2,7 @@ import re
 import os
 import numpy as np
 
-def update_recfast_ini(cosmo):
+def update_recfast_ini(cosmo, base_dir='./'):
     """
     Update H0, Omega_b, Omega_c, and Y_He in a Recfast++ .ini file.
     Saves modified version to `path_out`.
@@ -28,7 +28,7 @@ def update_recfast_ini(cosmo):
             new_line = re.sub(pattern, repl, new_line)
         new_lines.append(new_line)
 
-    with open('recfast_input.ini', "w") as f:
+    with open(base_dir + 'recfast_input.ini', "w") as f:
         f.writelines(new_lines)
 
 def call_recfast(base_dir='./', redshift=1100):
