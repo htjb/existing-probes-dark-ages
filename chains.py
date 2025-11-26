@@ -31,11 +31,11 @@ for i in range(len(probes)):
     chains = MCMCSamples(samples, columns=params)
     
     if i == 0:
-        ax = chains.plot_2d(params, kinds={'lower': 'scatter_2d', 'diagonal': 'kde_1d'},
+        ax = chains.plot_2d(params, kinds={'lower': 'kde_2d', 'diagonal': 'kde_1d'},
                             alpha=0.5, label = probes[i].split('/')[-1],
                             figsize=(7, 7))
     else:
-        chains.plot_2d(ax, kinds={'lower': 'scatter_2d', 'diagonal': 'kde_1d'},
+        chains.plot_2d(ax, kinds={'lower': 'kde_2d', 'diagonal': 'kde_1d'},
                             alpha=0.5, label = probes[i].split('/')[-1])
 ax.iloc[0,0].legend(bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
