@@ -45,7 +45,7 @@ def generate_signal(f_grid, sample):
         T_s = Ts(T_gas, T_cmb, xc_values)
         T21_values = vmappedT21(z_grid, T_gas, T_cmb, T_s, xe, cosmo)
         return T21_values
-    except Exception as e:
+    except Exception:
         #print(f"Error generating signal for sample {sample}: {e}")
         return jnp.full_like(f_grid, jnp.nan)
 
@@ -68,13 +68,15 @@ recombination_model = 'hyrec' # 'recfast' or 'hyrec'
 prior = prior_sample(100)
 prior[:, 2] *= (prior[:, 0]/100)**2
 prior[:, 3] *= (prior[:, 0]/100)**2
+print(prior.min(axis=0), prior.max(axis=0))
+
 chains = read_chains(probes[0])
 params = ['H0', 'omegam', 'omegabh2', 'omegach2', 'yheused']
 chains = chains[params]
 chains = chains.compress()
 samples = np.mean(chains.values, axis=0)
 samples = np.round(samples, 3)
-
+print("Fiducial parameters:", samples)
 fig, axes = plt.subplots(1, 3, figsize=(6, 2.5),
                          sharex=True, sharey=True)
 axes = axes.flatten()

@@ -26,8 +26,8 @@ def set_up_hyrec(H0, omb, omc, omk, yhe,
                     data[labels[i]] = line.rstrip()
 
     data['h'] = str(H0/100)
-    data['Omega_b'] = str(omb*(H0/100)**2)
-    data['Omega_m'] = str((omc+omb)*(H0/100)**2)
+    data['Omega_b'] = str(omb)#*(H0/100)**2)
+    data['Omega_m'] = str((omc+omb))#*(H0/100)**2)
     data['Omega_k'] = str(omk)
     data['Y_He'] = str(yhe)
 
@@ -45,7 +45,7 @@ def call_hyrec(base_dir='./', redshift=1100):
     os.chdir('HYREC-2')
     os.system('./hyrec < ../' + base_dir + '/hyrec_input.dat' + '> /dev/null 2>&1')
     os.chdir('..')
-    
+     
     data = np.loadtxt('HYREC-2/output_xe.dat')
     hyrec_z = data[:, 0][::-1]
     xe = data[:, 1][::-1]

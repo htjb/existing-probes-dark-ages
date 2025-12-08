@@ -50,7 +50,7 @@ def generate_signal(f_grid, sample):
         T21_values = vmappedT21(z_grid, T_gas, T_cmb, T_s, xe, cosmo)
         return T21_values
     except Exception as e:
-        #print(f"Error generating signal for sample {sample}: {e}")
+        print(f"Error generating signal for sample {sample}: {e}")
         return jnp.full_like(f_grid, jnp.nan)
 
 
