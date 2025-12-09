@@ -16,11 +16,11 @@ def update_recfast_ini(cosmo: NamedTuple, base_dir: str = "./") -> None:
         cosmo: Cosmology namedtuple with attributes H0, Omega_b, Omega_c, Y_He.
         base_dir: Directory to save the modified ini file.
     """
-    with open("recfast-.vx/runfiles/parameters.ini", "r") as f:
+    with open("recfast-.vx/runfiles/parameters.ini") as f:
         lines = f.readlines()
 
     # Compute derived parameter
-    omega_m = cosmo.Omega_b + cosmo.Omega_c
+    omega_m = cosmo.Omega_m
 
     # Regex replacements
     replacements = {
