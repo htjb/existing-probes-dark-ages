@@ -1,0 +1,27 @@
+[project]
+name = "existing-probes-dark-ages"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "anesthetic>=2.11.0",
+    "emcee>=3.1.6",
+    "jax>=0.8.1",
+    "matplotlib>=3.10.7",
+    "tqdm>=4.67.1",
+]
+
+[tool.ruff]
+line-length = 79
+
+[tool.ruff.lint]
+select =["E", "F", "W",  # basics
+            "I",            # isort
+            "D",            # docstrings
+            "UP",           # pyupgrade (includes type modernization)
+            "ANN",          # type annotations
+            ]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
