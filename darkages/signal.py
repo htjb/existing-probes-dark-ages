@@ -157,7 +157,9 @@ def generate_signal(
     sample: jnp.ndarray,
     z_init: int,
     rec_model: str = "recfast",
-) -> jnp.ndarray:
+    detailed_output: bool = False,
+    verbose: bool = False,
+) -> jnp.ndarray | tuple[jnp.ndarray, jnp.ndarray, jnp.ndarray, jnp.ndarray]:
     """Generate 21cm signal for a given cosmological sample.
 
     Args:
@@ -166,6 +168,8 @@ def generate_signal(
                 Y_He].
         z_init: Initial redshift.
         rec_model: Recombination model to use ('recfast' or 'hyrec').
+        detailed_output: Whether to return detailed outputs (xe, Tk, xc).
+        verbose: Whether to print verbose output from the recombination codes.
 
     Returns:
         T21_values: 21cm brightness temperature values over the frequency grid.
@@ -184,19 +188,23 @@ def generate_signal(
         if rec_model == "recfast":
             update_recfast_ini(cosmo)
             z_grid = 1420.4 / (f_grid) - 1
-            xe, T_gas = call_recfast(base_dir="./", redshift=z_grid)
+            xe, T_gas = call_recfast(
+                base_dir="./", redshift=z_grid, verbose=verbose
+            )
             xe, T_gas = jnp.array(xe), jnp.array(T_gas)
         elif rec_model == "hyrec":
             set_up_hyrec(
                 H0=cosmo.H0,
                 omb=cosmo.Omega_b,
                 omc=cosmo.Omega_c,
-                omk=0,
+                omk=0.0,
                 yhe=cosmo.Y_He,
                 base_dir="./",
             )
             z_grid = 1420.4 / (f_grid) - 1
-            xe, T_gas = call_hyrec(base_dir="./", redshift=z_grid)
+            xe, T_gas = call_hyrec(
+                base_dir="./", redshift=z_grid, verbose=verbose
+            )
             xe, T_gas = jnp.array(xe), jnp.array(T_gas)
 
         xc_values = xcvmap(z_grid, xe, T_gas, cosmo)
@@ -206,7 +214,10 @@ def generate_signal(
         T_s = Ts(T_gas, T_cmb, xc_values)
 
         T21_values = vmappedT21(z_grid, T_gas, T_cmb, T_s, xe, cosmo)
-        return T21_values
+        if detailed_output:
+            return T21_values, xe, T_gas, xc_values
+        else:
+            return T21_values
     except Exception as e:
         print(f"Error generating signal for sample {sample}: {e}")
         return jnp.full_like(f_grid, jnp.nan)
