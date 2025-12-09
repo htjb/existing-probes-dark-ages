@@ -164,6 +164,7 @@ def generate_signal(
         f_grid: Frequency grid in MHz.
         sample: Cosmological parameters [H0, Omega_m, Omega_b, Omega_c,
                 Y_He].
+        z_init: Initial redshift.
         rec_model: Recombination model to use ('recfast' or 'hyrec').
 
     Returns:
