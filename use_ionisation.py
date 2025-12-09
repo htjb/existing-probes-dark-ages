@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from anesthetic import read_chains
 from anesthetic.samples import MCMCSamples
-from fgivenx import plot_contours, plot_dkl
+from fgivenx import plot_contours
 from jax import numpy as jnp
 from tqdm import tqdm
 
@@ -56,7 +56,9 @@ def signal_call(f_grid: jnp.ndarray, sample: jnp.ndarray) -> jnp.ndarray:
     Returns:
         T21_values: 21cm brightness temperature values over the frequency grid.
     """
-    return generate_signal(f_grid, sample, z_init=1100, rec_model="hyrec")
+    return generate_signal(
+        f_grid, sample, z_init=1100, rec_model=recombination_model
+    )
 
 
 z_init = 1100
@@ -82,11 +84,9 @@ titles = [
     "DES Y1 Cosmic Shear +\nGalaxy Clustering + Cross",
 ]
 
-plot_signal = True
-plot_kl = False
-plot_minima = False
-plot_delta = False
-recombination_model = "hyrec"  # 'recfast' or 'hyrec'
+plot_signal = False
+plot_minima = True
+recombination_model = "recfast"  # 'recfast' or 'hyrec'
 
 c = ["C0", "C1", "C2", "C3"]
 
@@ -152,45 +152,11 @@ if plot_signal:
     # plt.show()
     plt.close()
 
-if plot_kl:
-    fig, ax = plt.subplots(1, 1, figsize=(3.5, 3.5))
-    for i in range(len(probes)):
-        file_path = probes[i]
-        chains = read_chains(file_path)
-        params = ["H0", "omegam", "omegabh2", "omegach2", "yheused"]
-        chains = chains[params]
-        if i == 0:
-            prior = prior_sample(n_samples=1000)
-            prior[:, 2] *= (prior[:, 0] / 100) ** 2
-            prior[:, 3] *= (prior[:, 0] / 100) ** 2
-        chains = chains.compress()
-        samples = chains.values
-
-        tau = emcee.autocorr.integrated_time(samples, tol=0)
-        samples = samples[:: int(tau)]
-        # samples = samples[:100]
-
-        plot_dkl(
-            signal_call,
-            1420.4 / (1 + z_grid),
-            samples,
-            prior,
-            ax,
-            color=c[i],
-            label=titles[i],
-        )
-    plt.legend(fontsize=8)
-    ax.set_xlabel(r"$\nu$ [MHz]")
-    ax.set_ylabel(r"$D_{KL}$ [bits]")
-    plt.tight_layout()
-    plt.savefig("21cm_brightness_temperature_dkl.pdf")
-    plt.show()
-
 probes = probes[::-1]
 titles = titles[::-1]
 c = c[::-1]
 
-if plot_minima or plot_delta:
+if plot_minima:
     z_grid = jnp.linspace(z_init, 30, 5000)
     vmapped_get_minima = jax.vmap(get_minima, in_axes=0)
     for i in range(len(probes)):
@@ -219,73 +185,70 @@ if plot_minima or plot_delta:
                 [signal_call(1420.4 / (1 + z_grid), s) for s in tqdm(prior)]
             )
 
-        if plot_minima:
-            min_values, min_indices = vmapped_get_minima(signals)
+        min_values, min_indices = vmapped_get_minima(signals)
 
-            mask = ~jnp.isnan(min_values)
-            min_values = min_values[mask]
-            min_indices = min_indices[mask]
+        mask = ~jnp.isnan(min_values)
+        min_values = min_values[mask]
+        min_indices = min_indices[mask]
 
-            minimum_freqs = 1420.4 / (1 + z_grid[min_indices])
-            minima_samples = MCMCSamples(
-                data=jnp.array([minimum_freqs, min_values]).T,
-                columns=["Frequency [MHz]", "Min T21 [mK]"],
+        minimum_freqs = 1420.4 / (1 + z_grid[min_indices])
+        minima_samples = MCMCSamples(
+            data=jnp.array([minimum_freqs, min_values]).T,
+            columns=["Frequency [MHz]", "Min T21 [mK]"],
+        )
+        print(
+            f"{titles[i]}: Average Min T21 = "
+            + f"{jnp.nanmean(min_values):.2f} mK"
+            + f" $\\pm$ {jnp.nanstd(min_values):.2f} mK \n"
+            f"Average nu_c {jnp.nanmean(minimum_freqs):.2f} MHz"
+            + f" $\\pm$ {jnp.nanstd(minimum_freqs):.2f} MHz"
+        )
+        if i == 0:
+            prior_min_values, prior_min_indices = vmapped_get_minima(
+                prior_signals
             )
+            prior_minimum_freqs = 1420.4 / (1 + z_grid[prior_min_indices])
             print(
-                f"{titles[i]}: Average Min T21 = "
-                + f"{jnp.nanmean(min_values):.2f} mK"
-                + f" $\\pm$ {jnp.nanstd(min_values):.2f} mK \n"
-                f"Average nu_c {jnp.nanmean(minimum_freqs):.2f} MHz"
-                + f" $\\pm$ {jnp.nanstd(minimum_freqs):.2f} MHz"
+                "Prior: Average Min T21 = "
+                + f"{jnp.nanmean(prior_min_values):.2f} mK"
+                + f" $\\pm$ {jnp.nanstd(prior_min_values):.2f} mK \n"
+                f"Average nu_c {jnp.nanmean(prior_minimum_freqs):.2f} MHz"
+                + f" $\\pm$ {jnp.nanstd(prior_minimum_freqs):.2f} MHz"
             )
-            if i == 0:
-                prior_min_values, prior_min_indices = vmapped_get_minima(
-                    prior_signals
-                )
-                prior_minimum_freqs = 1420.4 / (1 + z_grid[prior_min_indices])
-                print(
-                    "Prior: Average Min T21 = "
-                    + f"{jnp.nanmean(prior_min_values):.2f} mK"
-                    + f" $\\pm$ {jnp.nanstd(prior_min_values):.2f} mK \n"
-                    f"Average nu_c {jnp.nanmean(prior_minimum_freqs):.2f} MHz"
-                    + f" $\\pm$ {jnp.nanstd(prior_minimum_freqs):.2f} MHz"
-                )
-            if i == 0:
-                try:
-                    ax = minima_samples.plot_2d(
-                        ["Frequency [MHz]", "Min T21 [mK]"],
-                        color=c[i],
-                        alpha=0.5,
-                        label=titles[i].split(" ")[0],
-                        figsize=(3.5, 3.5),
-                        kinds={"lower": "kde_2d"},
-                    )
-                except Exception as e:
-                    print(
-                        f"Error plotting minima for with kde {titles[i]}: {e}"
-                    )
-                    ax = minima_samples.plot_2d(
-                        ["Frequency [MHz]", "Min T21 [mK]"],
-                        color=c[i],
-                        alpha=0.5,
-                        label=titles[i].split(" ")[0],
-                        figsize=(3.5, 3.5),
-                        kinds={"lower": "scatter_2d"},
-                    )
-            else:
-                minima_samples.plot_2d(
-                    ax,
+        if i == 0:
+            try:
+                ax = minima_samples.plot_2d(
+                    ["Frequency [MHz]", "Min T21 [mK]"],
                     color=c[i],
                     alpha=0.5,
                     label=titles[i].split(" ")[0],
+                    figsize=(3.5, 3.5),
                     kinds={"lower": "kde_2d"},
                 )
-if plot_minima:
-    ax.iloc[0, 0].set_xlabel(r"$\nu_c$ [MHz]")
-    ax.iloc[0, 0].set_ylabel(r"$T_{21}(\nu_c)$ [mK]")
-    plt.legend(fontsize=8, loc="lower right")
-    plt.tight_layout()
-    plt.savefig(
-        "21cm_brightness_temperature_minima_" + recombination_model + ".pdf"
-    )
+            except Exception as e:
+                print(f"Error plotting minima for with kde {titles[i]}: {e}")
+                ax = minima_samples.plot_2d(
+                    ["Frequency [MHz]", "Min T21 [mK]"],
+                    color=c[i],
+                    alpha=0.5,
+                    label=titles[i].split(" ")[0],
+                    figsize=(3.5, 3.5),
+                    kinds={"lower": "scatter_2d"},
+                )
+        else:
+            minima_samples.plot_2d(
+                ax,
+                color=c[i],
+                alpha=0.5,
+                label=titles[i].split(" ")[0],
+                kinds={"lower": "kde_2d"},
+            )
+
+ax.iloc[0, 0].set_xlabel(r"$\nu_c$ [MHz]")
+ax.iloc[0, 0].set_ylabel(r"$T_{21}(\nu_c)$ [mK]")
+plt.legend(fontsize=8, loc="lower right")
+plt.tight_layout()
+plt.savefig(
+    "21cm_brightness_temperature_minima_" + recombination_model + ".pdf"
+)
 plt.close()
