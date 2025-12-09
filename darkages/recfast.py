@@ -42,7 +42,7 @@ def update_recfast_ini(cosmo: NamedTuple, base_dir: str = "./") -> None:
 
 
 def call_recfast(
-    base_dir: str = "./", redshift: int = 1100
+    base_dir: str = "./", redshift: int = 1100, verbose: bool = False
 ) -> tuple[np.ndarray, np.ndarray]:
     """Code to call recfast.
 
@@ -51,17 +51,21 @@ def call_recfast(
     Args:
         base_dir: Directory where the recfast_input.ini file is located.
         redshift: Redshift at which to interpolate the output.
+        verbose: Whether to let recfast print to stdout.
 
     Returns:
         init_xe: Interpolated free electron fraction at the given redshift.
         init_Tk: Interpolated gas temperature at the given redshift.
     """
-    os.system(
-        "./recfast-.vx/Recfast++ "
-        + base_dir
-        + "/recfast_input.ini"
-        + "> /dev/null 2>&1"
-    )
+    if verbose:
+        os.system("./recfast-.vx/Recfast++ " + base_dir + "/recfast_input.ini")
+    else:
+        os.system(
+            "./recfast-.vx/Recfast++ "
+            + base_dir
+            + "/recfast_input.ini"
+            + "> /dev/null 2>&1"
+        )
 
     data = np.loadtxt(
         "recfast-output/Xe_Recfast++.Rec_corrs_CT2010.dat", skiprows=4
