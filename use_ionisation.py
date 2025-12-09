@@ -45,14 +45,26 @@ def get_minima(signal: jnp.ndarray) -> tuple[jnp.ndarray, jnp.ndarray]:
     return min_values, min_indices
 
 
-# for i in range(len(samples)):
+def signal_call(f_grid: jnp.ndarray, sample: jnp.ndarray) -> jnp.ndarray:
+    """Wrapper to call generate_signal for use in plotting functions.
+
+    Args:
+        f_grid: Frequency grid in MHz.
+        sample: Cosmological parameters [H0, Omega_m, Omega_b, Omega_c,
+                Y_He].
+
+    Returns:
+        T21_values: 21cm brightness temperature values over the frequency grid.
+    """
+    return generate_signal(f_grid, sample, z_init=1100, rec_model="hyrec")
+
 
 z_init = 1100
 z_grid = jnp.linspace(z_init, 30, 1500)
 
 probes = [  # planck cmb baseline high l TT + low l  and low EE
-    'COM_CosmoParams_fullGrid_R3.01/base/" + '
-    '"plikHM_TT_lowl_lowE/base_plikHM_TT_lowl_lowE',
+    "COM_CosmoParams_fullGrid_R3.01/base/"
+    + "plikHM_TT_lowl_lowE/base_plikHM_TT_lowl_lowE",
     # wmap cmb full temperature and polarisation 9 year
     "COM_CosmoParams_fullGrid_R3.01/base/WMAP/base_WMAP",
     # bao DR12, MGS, 6dF
@@ -104,7 +116,7 @@ if plot_signal:
         print("Number of samples in prior:", len(prior))
 
         plot_contours(
-            generate_signal,
+            signal_call,
             1420.4 / (1 + z_grid),
             prior,
             ax[i],
@@ -114,7 +126,7 @@ if plot_signal:
             fineness=1,
         )
         plot_contours(
-            generate_signal,
+            signal_call,
             1420.4 / (1 + z_grid),
             samples,
             ax[i],
@@ -159,7 +171,7 @@ if plot_kl:
         # samples = samples[:100]
 
         plot_dkl(
-            generate_signal,
+            signal_call,
             1420.4 / (1 + z_grid),
             samples,
             prior,
@@ -199,15 +211,12 @@ if plot_minima or plot_delta:
         samples = samples[:: int(tau)]  # [:300]
 
         signals = jnp.array(
-            [generate_signal(1420.4 / (1 + z_grid), s) for s in tqdm(samples)]
+            [signal_call(1420.4 / (1 + z_grid), s) for s in tqdm(samples)]
         )
 
         if i == 0:
             prior_signals = jnp.array(
-                [
-                    generate_signal(1420.4 / (1 + z_grid), s)
-                    for s in tqdm(prior)
-                ]
+                [signal_call(1420.4 / (1 + z_grid), s) for s in tqdm(prior)]
             )
 
         if plot_minima:
