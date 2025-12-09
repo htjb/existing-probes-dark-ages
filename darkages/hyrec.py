@@ -68,8 +68,8 @@ def set_up_hyrec(
                     data[labels[i]] = line.rstrip()
 
     data["h"] = str(H0 / 100)
-    data["Omega_b"] = str(omb * (H0 / 100) ** 2)
-    data["Omega_m"] = str((omc + omb) * (H0 / 100) ** 2)
+    data["Omega_b"] = str(omb)
+    data["Omega_m"] = str(omc + omb)
     data["Omega_k"] = str(omk)
     data["Y_He"] = str(yhe)
 
