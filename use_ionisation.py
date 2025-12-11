@@ -86,7 +86,7 @@ titles = [
 
 plot_signal = False
 plot_minima = True
-recombination_model = "recfast"  # 'recfast' or 'hyrec'
+recombination_model = "hyrec"  # 'recfast' or 'hyrec'
 
 c = ["C0", "C1", "C2", "C3"]
 
@@ -220,7 +220,6 @@ if plot_minima:
                 ax = minima_samples.plot_2d(
                     ["Frequency [MHz]", "Min T21 [mK]"],
                     color=c[i],
-                    alpha=0.5,
                     label=titles[i].split(" ")[0],
                     figsize=(3.5, 3.5),
                     kinds={"lower": "kde_2d"},
@@ -230,7 +229,6 @@ if plot_minima:
                 ax = minima_samples.plot_2d(
                     ["Frequency [MHz]", "Min T21 [mK]"],
                     color=c[i],
-                    alpha=0.5,
                     label=titles[i].split(" ")[0],
                     figsize=(3.5, 3.5),
                     kinds={"lower": "scatter_2d"},
@@ -239,7 +237,6 @@ if plot_minima:
             minima_samples.plot_2d(
                 ax,
                 color=c[i],
-                alpha=0.5,
                 label=titles[i].split(" ")[0],
                 kinds={"lower": "kde_2d"},
             )
