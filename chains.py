@@ -28,7 +28,7 @@ params = ["H0", "omegam", "omegabh2"]  # , 'omegach2', 'yheused']
 
 legend_labels = ["DES", "BAO", "WMAP", "Planck"]
 
-fig, axes = plt.subplots(1, 1, figsize=(3.5, 3.5), sharex=True, sharey=True)
+fig, axes = plt.subplots(1, 2, figsize=(6, 3.5), sharey=True)
 mins, maxs = [], []
 for i in range(len(probes)):
     file_path = probes[i]
@@ -45,19 +45,24 @@ for i in range(len(probes)):
     chains = MCMCSamples(samples, columns=params)
     omegam = chains["omegam"]
     H0 = chains["H0"]
-    mins.append([H0.min(), omegam.min()])
-    maxs.append([H0.max(), omegam.max()])
+    omega_b = chains["omegabh2"]
     kde_contour_plot_2d(
-        axes,
+        axes[0],
         omegam,
         H0,
         levels=[0.95, 0.68],
         color=colors[i],
         label=legend_labels[i],
+        alpha=1,
     )
-axes.legend(loc="upper right", fontsize=8)
-axes.set_xlabel(r"$\Omega_m$")
-axes.set_ylabel(r"$H_0$ [km/s/Mpc]")
+    kde_contour_plot_2d(
+        axes[1], omega_b, H0, levels=[0.95, 0.68], color=colors[i], alpha=1
+    )
+axes[0].legend(loc="upper right", fontsize=8)
+axes[0].set_xlabel(r"$\Omega_m$")
+axes[0].set_ylabel(r"$H_0$ [km/s/Mpc]")
+axes[1].set_xlabel(r"$\Omega_b h^2$")
 plt.tight_layout()
+plt.subplots_adjust(wspace=0.1)
 plt.savefig("chain_comparison.pdf")
 plt.show()
