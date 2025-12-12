@@ -1,5 +1,7 @@
 # Dark Ages 21-cm Simulation
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17910173.svg)](https://doi.org/10.5281/zenodo.17910173)
+
 The repo includes a simple simulation of the dark ages 21-cm signal and code to explore constraints on the signal from existing probes of $$\Lambda$$ CDM.
 
 The main results can be obtained by running `use_ionization.py`.
