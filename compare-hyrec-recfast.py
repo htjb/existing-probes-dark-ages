@@ -103,7 +103,7 @@ axes[1].fill_between(
 axes[1].set_ylim(frac_dif_Tk.min() * 1.1, frac_dif_Tk.max() * 1.1)
 axes[1].axhline(0, color="k", ls="--")
 axes[1].set_xlabel("Redshift $z$")
-axes[1].set_ylabel(r"$(T_k^{HyRec} - T_k^{Recfast})/T_k^{Recfast}$")
+axes[1].set_ylabel(r"$(T_k^{hyrec} - T_k^{recfast})/T_k^{recfast}$")
 
 plt.tight_layout()
 plt.savefig("compare-hyrec-recfast.pdf", bbox_inches="tight")
