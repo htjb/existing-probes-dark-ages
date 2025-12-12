@@ -1,5 +1,5 @@
-import jax.numpy as jnp
-from jax import jit
+"""Define the comsological parameters used in DarkAges."""
+
 from collections import namedtuple
 
 cosmology = namedtuple('cosmo', ['H0', 'Omega_m',
